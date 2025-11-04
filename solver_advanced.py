@@ -6,11 +6,30 @@ import random
 def cost(schedule: Schedule, solution: dict) -> int:
     return schedule.get_n_creneaux(solution)
 
-# solution naive
+# Solution initiale un peu plus facile a parcourir pour le solve
 def generate_initial_solution(schedule: Schedule) -> dict:
-    sol = naive_solve(schedule)   
-    schedule.verify_solution(sol) 
-    return sol
+    solution = {}
+
+    
+    courses = list(schedule.course_list)
+    courses.sort(key=lambda c: len(schedule.get_node_conflicts(c)), reverse=True) # on trie les cours par leur nombre de conflits en decroissant
+
+    for course in courses:
+        # on prend le plus petit slot possible 
+        slot = 1
+        while True:
+            conflict_found = False
+            for conf in schedule.get_node_conflicts(course):
+                if conf in solution and solution[conf] == slot: #on parcours les slot en mode croissant et on verfifie si ya un conflit
+                    conflict_found = True
+                    break
+            if not conflict_found:
+                break
+            slot += 1
+        solution[course] = slot
+
+    schedule.verify_solution(solution)
+    return solution
 
 # on diffère de la solution courante en bougeant 1 cours de timeslot
 def generate_neighbors(solution: dict, schedule: Schedule) -> list[dict]:
@@ -30,7 +49,7 @@ def generate_neighbors(solution: dict, schedule: Schedule) -> list[dict]:
     # On essaie chaque cours et on en prend un qui peut bouger de timeslot
     for course in courses_in_max:
         current_slot = solution[course]
-        conflicting_courses = schedule.get_node_conflicts(course)
+        conflict_courses = schedule.get_node_conflicts(course)
         neighbors = []
 
         for slot in sorted(used_slots): # on essaie de mettre le cours dans un autre timeslot
@@ -39,7 +58,7 @@ def generate_neighbors(solution: dict, schedule: Schedule) -> list[dict]:
 
             # vérifier s'il y a un conflit dans ce slot
             conflict = False
-            for other in conflicting_courses:
+            for other in conflict_courses:
                 if solution[other] == slot:
                     conflict = True
                     break
