@@ -51,7 +51,38 @@ def solve(schedule: Schedule):
     best_cost = cost(schedule, S_best)
 
     max_iter = 10000
-        
+    no_improve_limit = 500 
+    no_improve = 0
 
+
+    for _ in range(max_iter):
+        neighbors = generate_neighbors(S, schedule)
+
+        # on garde seulement les voisins possibles
+        valid_neighbors = []
+        for n in neighbors: 
+            try:
+                schedule.verify_solution(n)
+                valid_neighbors.append(n)
+            except AssertionError:
+                pass
+
+        if not valid_neighbors: 
+            break
+
+        S = select_neighbor(valid_neighbors, schedule)
+        current_cost = cost(schedule, S)
+
+        if current_cost < best_cost: #remplace la vieille solution par une à coût moindre
+            best_cost = current_cost
+            S_best = S.copy()
+            no_improve = 0
+        else:
+            no_improve += 1
+
+        if no_improve > no_improve_limit: #si on a pas improve après 500 itérations on retourne la solution toruvée
+            break
+
+    schedule.verify_solution(S_best) #dernière vérification de la solution finale
     
     return S_best
