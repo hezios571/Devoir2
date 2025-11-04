@@ -14,7 +14,7 @@ def generate_initial_solution(schedule: Schedule) -> dict:
 
 # on diffère de la solution courante en bougeant 1 cours de timeslot
 def generate_neighbors(solution: dict, schedule: Schedule) -> list[dict]:
-    neighbors = []
+    
     used_slots = set(solution.values())
     max_slot=max(used_slots)
 
@@ -27,26 +27,33 @@ def generate_neighbors(solution: dict, schedule: Schedule) -> list[dict]:
 
     conflicting_courses = schedule.get_node_conflicts(course) # on verifie les conflits de ce cours
 
-    # on essaie tous les créneaux déjà utilisés
-    for slot in used_slots:
-        if slot == current_slot: # si c'est le timeslot du cours qu'on essaie de bouger on skip celui-ci
-            continue
+    # On essaie chaque cours et on en prend un qui peut bouger de timeslot
+    for course in courses_in_max:
+        current_slot = solution[course]
+        conflicting_courses = schedule.get_node_conflicts(course)
+        neighbors = []
 
-        conflict = False
+        for slot in sorted(used_slots): # on essaie de mettre le cours dans un autre timeslot
+            if slot == current_slot:
+                continue
 
-        for other in conflicting_courses: # on vérifie qu'on place pas le cours dans un timeslot de conflit
-            if solution[other] == slot:
-                conflict = True
-                break
+            # vérifier s'il y a un conflit dans ce slot
+            conflict = False
+            for other in conflicting_courses:
+                if solution[other] == slot:
+                    conflict = True
+                    break
 
-        if conflict: # si c'est un timeslot de conflit on skip ce timeslot
-            continue
+            if conflict:
+                continue
 
-        new_sol = solution.copy()
-        new_sol[course] = slot      
-        neighbors.append(new_sol)   # retourne les solutions valides
+            new_sol = solution.copy()
+            new_sol[course] = slot      
+            neighbors.append(new_sol)   # retourne les solutions valides
 
-    return neighbors
+    if neighbors:
+            return neighbors
+    return []
 
 # Trouve le meilleur prochaine voisin à explorer et retourne celui-ci
 def select_neighbor(valid_neighbors: list[dict], schedule: Schedule) -> dict:
