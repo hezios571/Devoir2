@@ -23,7 +23,16 @@ var int: p;
 %-----------------------------------------------------------------------------%
 % Partie étudiant
 %-----------------------------------------------------------------------------%
+constraint nombre = chiffres[1]*1000+chiffres[2]*100+chiffres[3]*10+chiffres[4];
+constraint chiffres[4] mod 2=0;
+constraint all_different(chiffres);
+constraint chiffres[1] > chiffres[2];
+constraint chiffres[3] < chiffres[4];
+constraint chiffres[2] > chiffres[4];
+constraint sum(chiffres) > 15;
+constraint p = chiffres[2]*chiffres[3]*chiffres[4];
 
+solve minimize p;
 
 %-----------------------------------------------------------------------------%
 
