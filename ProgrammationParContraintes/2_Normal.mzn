@@ -37,6 +37,17 @@ var int: fin_projet;
 % Partie étudiant
 %-----------------------------------------------------------------------------%
 
+constraint forall(i in 1..n)(fin_tache[i] = debut_tache[i]+duree_tache[i]);
+constraint maximum(fin_projet, fin_tache);
+
+% Limite d'energie a respecter en tout temps
+constraint cumulative(debut_tache, duree_tache, ressource_tache, limite);
+
+% Assure que pas plus de deux taches ne demarrent en meme temps
+constraint forall(t in 1..m)(sum(i in 1..n)(debut_tache[i] = t)<=2);
+
+% Minimuse le temps avant la fin du projet
+solve minimize fin_projet;
 
 %-----------------------------------------------------------------------------%
 
