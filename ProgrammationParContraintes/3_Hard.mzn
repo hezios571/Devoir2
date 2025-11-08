@@ -1,5 +1,5 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+% Jérôme Solis-Bergeron (2137094)
+% Reagan Li (2055734)
 
 include "globals.mzn"; 
 
@@ -30,21 +30,38 @@ var int: temps_trajet;
 % Partie étudiant
 %-----------------------------------------------------------------------------%
 
-constraint chemin_tournee[n] = 1;
+%Dernière position est la ville 1
+constraint chemin_tournee[n] = 1; 
+
+%On visite tjrs une ville différente et pas la ville 1
 constraint all_different([chemin_tournee[k] | k in 1..n-1]);
 constraint forall(k in 1..n-1)(chemin_tournee[k] != 1);
+
+%Le successeur de la ville 1 est la première dans la liste des prochaines villes
 constraint circuit_tournee[1] = chemin_tournee[1];
+
+%pour chaque ville k, son successeur est la ville k+1
 constraint forall(k in 1..n-1)(circuit_tournee[chemin_tournee[k]] = chemin_tournee[k+1]);
+
+%permet d'assurer que chaque ville a une successeur et un predecesseur
 constraint circuit(circuit_tournee);
+
+%on pars de la ville 1 au temps 0
 constraint cumul_temps[1] = 0;
 constraint temps_attente[1] = 0;
+
+%Calcul des temps cumulatifs
 constraint cumul_temps[chemin_tournee[1]] = cumul_temps[1] + temps_attente[1] + distance[1,chemin_tournee[1]];
 constraint forall(k in 2..n-1)(
     cumul_temps[chemin_tournee[k]] = cumul_temps[chemin_tournee[k-1]] + temps_attente[chemin_tournee[k-1]] + distance[chemin_tournee[k-1],chemin_tournee[k]]
 );
+
+%on force le temps d'arrivée dans la fenêtre, sinon on augmente l'attente
 constraint forall(i in 1..n)(
     fenetre_arrivee[i,1] <= cumul_temps[i] /\ cumul_temps[i] <= fenetre_arrivee[i,2]
 );
+
+%temps total
 constraint temps_trajet = cumul_temps[chemin_tournee[n-1]] + temps_attente[chemin_tournee[n-1]] + distance[chemin_tournee[n-1],1];
 
 solve minimize temps_trajet;

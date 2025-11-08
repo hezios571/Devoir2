@@ -1,5 +1,5 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+% Jérôme Solis-Bergeron (2137094)
+% Reagan Li (2055734)
 
 include "globals.mzn";
 
