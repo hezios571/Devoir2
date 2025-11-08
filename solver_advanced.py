@@ -1,3 +1,6 @@
+# Jérôme Solis-Bergeron (2137094)
+# Reagan Li (2055734)
+
 from schedule import Schedule
 from solver_naive import solve as naive_solve  
 import random
